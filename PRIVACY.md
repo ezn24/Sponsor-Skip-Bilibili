@@ -1,6 +1,6 @@
 # Privacy Policy for Sponsor Skip
 
-**Effective Date:** July 23, 2026  
+**Effective Date:** September 8, 2026  
 **Developer:** Jaival
 
 This Privacy Policy explains how Sponsor Skip ("the App") handles information when you use the application. By installing and using the App, you acknowledge and agree to the data processing practices described in this document.
@@ -33,7 +33,7 @@ To ensure you are running the latest version, the App may check for updates peri
 * **The Process:** The App makes a network request to the public GitHub API to check the repository's latest release tag.
 * **Privacy Impact:** No personal data or usage metrics are sent. However, your device's IP address may be exposed to GitHub's servers during the request. This is governed by [GitHub Privacy Policy](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement). This request is made directly from your device to GitHub's servers. The request is not routed through, and is never processed or stored on, any servers or infrastructure owned, operated or controlled by the Developer.
 
-***Note**: While the app uses secure protocols to protect your data during transmission, no method of communication over the internet is completely secure, and the developer cannot guarantee absolute security against unauthorised inception or server-side exploits.*
+***Note**: While the app uses secure protocols to protect your data during transmission, no method of communication over the internet is completely secure, and the developer cannot guarantee absolute security against unauthorised interception or server-side exploits.*
 
 ## 3. Local Data Storage
 The App stores user preferences (such as your chosen segment settings, the total time/segments saved) locally on your device using Android's `SharedPreferences` (and Device Protected Storage). This data never leaves your phone. If you uninstall the App or clear its data, this data is permanently deleted.
@@ -59,4 +59,4 @@ If you have any questions, concerns, or requests regarding this Privacy Policy o
 
 ---
 
-*The Privacy Policy was updated on 23th July, 2026*
+*The Privacy Policy was updated on 8th September, 2026*
