@@ -1,62 +1,46 @@
-# Privacy Policy for Sponsor Skip
+# Privacy Policy
 
-**Effective Date:** July 23, 2026  
-**Developer:** Jaival
+Last updated: 16 September 2026
 
-This Privacy Policy explains how Sponsor Skip ("the App") handles information when you use the application. By installing and using the App, you acknowledge and agree to the data processing practices described in this document.
+Sponsor Skip for Bilibili processes media information locally so it can identify the currently playing Bilibili video and skip community-submitted segments. The app does not require an account and does not operate an analytics or advertising service.
 
-## 1. Information We Do Not Collect
-Sponsor Skip is designed with strict privacy principles. **The Developer does not collect, store, or have access to any of your personal data.** The App does not include any analytics trackers, crash reporters, or telemetry scripts. All processing happens either locally on your device or directly between your device and specific third-party APIs.
+## Information the app accesses
 
-## 2. How the App Processes Data
-To function correctly, the App requires certain permissions and makes automated background requests. All network requests are performed over HTTPS encryption where supported by destination service. Here is exactly how your data is processed:
+When notification-listener access is enabled, the app reads active media-session metadata from these packages only:
 
-### A. Local Media Monitoring (Notification Access)
-The App requires the `Notification Access` permission to monitor the active Android `MediaSession`. 
-* **What it reads:** The App solely extracts the **Title** of the currently playing media from the official YouTube app.
-* **What it ignores:** The App ignores all other notifications, personal messages, emails, and alerts. This media monitoring happens entirely locally on your device.
+- `tv.danmaku.bili`
+- `com.bilibili.app.in`
 
-### B. YouTube Background Search
-Because the Android system does not provide the direct Video ID, the App must find it manually.
-* **The Process:** The App takes the extracted Title and performs an automated, background HTTP search request directly to `youtube.com`.
-* **Privacy Impact:** No Google accounts, login tokens, or cookies are sent. However, because your device connects to YouTube's servers, your IP address may be temporarily exposed to Google LLC, subject to their privacy policies. The request is made directly between your device and YouTube's servers. The request is not routed through, and is never processed or stored on, any servers or infrastructure owned, operated or controlled by the Developer.
-* *Although authentication data is not transmitted by the App, requests to YouTube may still allow Google to infer that a device associated with your IP address searched for or accessed particular video metadata.* 
+The metadata may include the video title, media ID, playback duration, playback position and playback state. It is used in memory to resolve the video's BVID/CID and control playback. Debug logs are stored locally only when the user enables logging.
 
-### C. SponsorBlock API Request
-Once the App determines the 11-character Video ID, it requests the skip timestamps from the public SponsorBlock database.
-* **The Process:** The App sends the Video ID via a GET request to `sponsor.ajay.app`.
-* **Skip Count Tracking:** Additionally if a user enables `Skip count tracking` in the app, only UUID of skipped segment is sent via a POST request to `sponsor.ajay.app`.
-* **Privacy Impact:** The SponsorBlock API does not receive your YouTube account information, but it may see the Video ID and your device's IP address. This data is handled in accordance with the [SponsorBlock Privacy Policy](https://gist.github.com/ajayyy/aa9f8ded2b573d4f73a3ffa0ef74f796). This request is made directly from your device to SponsorBlock servers. The request is not routed through, and is never processed or stored on, any servers or infrastructure owned, operated or controlled by the Developer. 
+## Network requests
 
-### D. App Update Checks (GitHub)
-To ensure you are running the latest version, the App may check for updates periodically in background or on app open or when manually requested in the settings. Automatic checks for updates can be disabled by user from settings.
-* **The Process:** The App makes a network request to the public GitHub API to check the repository's latest release tag.
-* **Privacy Impact:** No personal data or usage metrics are sent. However, your device's IP address may be exposed to GitHub's servers during the request. This is governed by [GitHub Privacy Policy](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement). This request is made directly from your device to GitHub's servers. The request is not routed through, and is never processed or stored on, any servers or infrastructure owned, operated or controlled by the Developer.
+The app may connect directly to:
 
-***Note**: While the app uses secure protocols to protect your data during transmission, no method of communication over the internet is completely secure, and the developer cannot guarantee absolute security against unauthorised inception or server-side exploits.*
+- Bilibili public APIs to resolve video metadata such as BVID and CID.
+- `https://www.bsbsb.top`, the BilibiliSponsorBlock service, to download matching skip segments and, when skip-count tracking is enabled, report that a segment was viewed/skipped.
+- GitHub's API and release pages under `ezn24/Sponsor-Skip-Bilibili` to check for and download app updates when update checking is enabled.
 
-## 3. Local Data Storage
-The App stores user preferences (such as your chosen segment settings, the total time/segments saved) locally on your device using Android's `SharedPreferences` (and Device Protected Storage). This data never leaves your phone. If you uninstall the App or clear its data, this data is permanently deleted.
+These services receive the network information normally exposed by an HTTPS request, including the device's IP address. Segment requests may include a BVID/CID. Skip-count reporting sends the segment UUID. The app does not send Bilibili login credentials, cookies, account identifiers or notification contents to the developer.
 
-## 4. Third-Party Services
-The App acts as an independent, local client that interacts with external services. The Developer has no control over and is not responsible for the privacy practices or terms of service of these third parties.
-* **YouTube / Google LLC:** [Google Privacy Policy](https://policies.google.com/privacy)
-* **SponsorBlock:** [SponsorBlock Privacy Policy](https://gist.github.com/ajayyy/aa9f8ded2b573d4f73a3ffa0ef74f796)
-* **GitHub:** [GitHub Privacy Policy](https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement)
+## Storage and sharing
 
-Sponsor Skip is an independent third-party application and is not affiliated with, endorsed by, sponsored by, or approved by YouTube, Google LLC, or SponsorBlock.
+Settings, statistics and optional debug logs are stored locally on the device. A settings backup is created only when the user explicitly exports one. The developer does not receive or sell this local data.
 
-## 5. Children's Privacy
-The App is not directed toward children and the Developer does not knowingly collect personal data from children. Because the App operates locally and does not transmit data to the Developer, we do not have the capability to collect or identify the age of our users.
+The app does not use third-party advertising or analytics SDKs. Data sent to Bilibili, BilibiliSponsorBlock or GitHub is handled under those services' respective policies.
 
-## 6. Changes to this Privacy Policy
-This Privacy Policy may be updated periodically to reflect changes in the App's technical architecture or legal requirements. Because the App operates without user accounts or contact information, we cannot notify you directly of any modifications. We encourage you to periodically review the most current version of this policy in the App's repository. Material changes to this policy become effective upon publication. Your continued use of the App following the publication of changes constitutes your acknowledgment and consent to the revised policy.
+## Permissions
 
-## 7. Contact Information
-If you have any questions, concerns, or requests regarding this Privacy Policy or the technical operations of Sponsor Skip, you may reach out via:
-* **Email:** jaival7909@gmail.com
-* **Issue Tracker:** [Sponsor Skip Repository](https://github.com/jaival-11/Sponsor-Skip/issues)
+- Notification access: discover Bilibili media sessions and their playback metadata.
+- Internet: resolve video IDs, obtain skip segments and check for updates.
+- Notifications and foreground service: optionally keep media monitoring active.
+- Install packages: install an update only after the user chooses to do so.
+- Battery-optimization exemption: optional reliability improvement requested by the user.
 
----
+## Independence
 
-*The Privacy Policy was updated on 23th July, 2026*
+Sponsor Skip for Bilibili is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Bilibili, BilibiliSponsorBlock, SponsorBlock or their maintainers.
+
+## Contact
+
+Questions and privacy requests can be submitted through the [project issue tracker](https://github.com/ezn24/Sponsor-Skip-Bilibili/issues).

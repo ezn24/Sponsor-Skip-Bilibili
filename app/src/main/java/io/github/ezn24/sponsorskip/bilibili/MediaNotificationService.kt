@@ -35,18 +35,15 @@ data class Segment(
     val startMs: Long,
     val endMs: Long,
     val category: String,
-    val uuids: List<String> = emptyList(),
-    val source: SegmentSource = SegmentSource.SPONSOR_BLOCK
+    val uuids: List<String> = emptyList()
 )
-
-enum class SegmentSource { SPONSOR_BLOCK, BILIBILI_SPONSOR_BLOCK }
 
 class MediaNotificationService : NotificationListenerService() {
     private val client = OkHttpClient()
     private val bilibiliResolver = BilibiliResolver(client)
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var skipSegments = mutableListOf<Segment>()
-    private var ytController: MediaController? = null
+    private var mediaController: MediaController? = null
     private var trackingJob: Job? = null
     private var fetchJob: Job? = null
     private var sessionManager: MediaSessionManager? = null
@@ -57,31 +54,18 @@ class MediaNotificationService : NotificationListenerService() {
 
     private val callback = object : MediaController.Callback() {
         override fun onMetadataChanged(metadata: MediaMetadata?) {
-            val currentPkg = ytController?.packageName ?: ""
-            val isSpotApp = (currentPkg == SettingsManager.SPOTIFY_PACKAGE) && SettingsManager.isSpotEnabled
-            val isYtApp = SettingsManager.targetPackages.contains(currentPkg) && SettingsManager.isServiceEnabled
-            val isBilibiliApp = SettingsManager.BILIBILI_PACKAGES.contains(currentPkg)
-
-            if (!isSpotApp && !isYtApp) return
+            val currentPkg = mediaController?.packageName ?: ""
+            if (!SettingsManager.isServiceEnabled || currentPkg !in SettingsManager.BILIBILI_PACKAGES) return
 
             val title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE) ?: metadata?.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE) ?: ""
             val initialDuration = metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: 0L
 
-            val targetIdentifier = if (isSpotApp) {
-                val rawMediaId = metadata?.getString(MediaMetadata.METADATA_KEY_MEDIA_ID) ?: ""
-                if (rawMediaId.contains(":")) rawMediaId.substringAfterLast(":") else rawMediaId
-            } else if (isBilibiliApp) {
-                val mediaId = metadata?.getString(MediaMetadata.METADATA_KEY_MEDIA_ID).orEmpty()
-                "$mediaId|$title"
-            } else { title }
+            val mediaId = metadata?.getString(MediaMetadata.METADATA_KEY_MEDIA_ID).orEmpty()
+            val targetIdentifier = "$mediaId|$title"
 
             if (targetIdentifier.isNotBlank() && targetIdentifier != currentTitleOrId) {
                 currentTitleOrId = targetIdentifier
-                val modePrefix = when {
-                    isSpotApp -> "[SPOT SERVICE]"
-                    isBilibiliApp -> "[BILI SERVICE]"
-                    else -> "[SERVICE]"
-                }
+                val modePrefix = "[BILI SERVICE]"
                 
                 AppLogger.log("$modePrefix === METADATA DETECTED ($currentPkg) ===")
                 AppLogger.log("$modePrefix --- RAW METADATA DUMP ---")
@@ -94,29 +78,17 @@ class MediaNotificationService : NotificationListenerService() {
                 fetchJob?.cancel()
                 fetchJob = scope.launch {
                     try {
-                        if (ytController?.playbackState?.state != PlaybackState.STATE_PLAYING) {
+                        if (mediaController?.playbackState?.state != PlaybackState.STATE_PLAYING) {
                             AppLogger.log("$modePrefix Target is buffering/paused. Waiting for playback...")
-                            while (ytController?.playbackState?.state != PlaybackState.STATE_PLAYING && isActive) { delay(100) }
+                            while (mediaController?.playbackState?.state != PlaybackState.STATE_PLAYING && isActive) { delay(100) }
                             if (!isActive) return@launch
                             AppLogger.log("$modePrefix Playback started for '$targetIdentifier'.")
                         }
 
-                        val freshMetadata = ytController?.metadata
+                        val freshMetadata = mediaController?.metadata
                         val actualDuration = freshMetadata?.getLong(MediaMetadata.METADATA_KEY_DURATION) ?: initialDuration
-
-                        if (!isSpotApp && !isBilibiliApp && actualDuration <= 181000L) {
-                            AppLogger.log("$modePrefix Short video suspect -> 1.5s debounce delay")
-                            delay(1500)
-                        }
-
                         if (!isActive) return@launch
-
-                        if (isSpotApp) {
-                            AppLogger.log("$modePrefix Direct Metadata ID Extracted: '$targetIdentifier' (Bypassing HTML Search)")
-                            fetchSegmentsAndTrack(targetIdentifier, true, false, freshMetadata, actualDuration, targetIdentifier)
-                        } else {
-                            fetchSegmentsAndTrack(title, false, isBilibiliApp, freshMetadata, actualDuration, targetIdentifier)
-                        }
+                        fetchSegmentsAndTrack(title, freshMetadata, actualDuration, targetIdentifier)
                     } catch (e: Exception) {
                         if (e !is CancellationException) {
                             AppLogger.log("[SERVICE] fetchJob error: ${e.message}")
@@ -130,9 +102,9 @@ class MediaNotificationService : NotificationListenerService() {
     private val toggleReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == SettingsManager.ACTION_TOGGLE_SERVICE) {
-                if (!SettingsManager.isServiceEnabled && !SettingsManager.isSpotEnabled) {
+                if (!SettingsManager.isServiceEnabled) {
                     AppLogger.log("[SERVICE] MASTER KILL SIGNAL. Wiping memory and detaching hooks.")
-                    trackingJob?.cancel(); fetchJob?.cancel(); ytController?.unregisterCallback(callback); ytController = null; currentTitleOrId = ""; skipSegments.clear()
+                    trackingJob?.cancel(); fetchJob?.cancel(); mediaController?.unregisterCallback(callback); mediaController = null; currentTitleOrId = ""; skipSegments.clear()
                 } else {
                     AppLogger.log("[SERVICE] CONFIG CHANGED. Re-evaluating active hooks.")
                     val component = ComponentName(this@MediaNotificationService, MediaNotificationService::class.java)
@@ -168,85 +140,45 @@ class MediaNotificationService : NotificationListenerService() {
     private fun handleSessions(sessions: List<MediaController>?) {
         val newController = sessions?.find { controller ->
             val pkg = controller.packageName
-            val inSpot = (pkg == SettingsManager.SPOTIFY_PACKAGE) && SettingsManager.isSpotEnabled
-            val inYt = SettingsManager.targetPackages.contains(pkg) && SettingsManager.isServiceEnabled
-            inSpot || inYt
+            SettingsManager.isServiceEnabled && pkg in SettingsManager.BILIBILI_PACKAGES
         }
 
         if (newController != null) {
-            if (ytController?.sessionToken == newController.sessionToken) return
+            if (mediaController?.sessionToken == newController.sessionToken) return
             AppLogger.log("[SERVICE] Hooked into MediaController (${newController.packageName}).")
-            ytController?.unregisterCallback(callback); ytController = newController; ytController?.registerCallback(callback)
-            callback.onMetadataChanged(ytController?.metadata)
+            mediaController?.unregisterCallback(callback); mediaController = newController; mediaController?.registerCallback(callback)
+            callback.onMetadataChanged(mediaController?.metadata)
         } else {
-            if (ytController != null) {
+            if (mediaController != null) {
                 AppLogger.log("[SERVICE] Active playback detached.")
-                ytController?.unregisterCallback(callback); ytController = null; currentTitleOrId = ""; trackingJob?.cancel(); fetchJob?.cancel(); skipSegments.clear()
+                mediaController?.unregisterCallback(callback); mediaController = null; currentTitleOrId = ""; trackingJob?.cancel(); fetchJob?.cancel(); skipSegments.clear()
             }
         }
     }
 
     private suspend fun fetchSegmentsAndTrack(
         targetInput: String,
-        isSpotMode: Boolean,
-        isBilibiliMode: Boolean,
         metadata: MediaMetadata?,
         durationMs: Long,
         expectedIdentifier: String
     ) {
         try {
-            val targetVideoId: String
-            var bilibiliCid: String? = null
-
-            if (isSpotMode) {
-                targetVideoId = targetInput
-            } else if (isBilibiliMode) {
-                val resolved = bilibiliResolver.resolve(metadata, targetInput, durationMs)
-                if (resolved == null) {
-                    AppLogger.log("[BILI RESOLVER] FATAL: Could not resolve a BVID for '$targetInput'.")
-                    if (SettingsManager.isLoggingEnabled) showToast(getString(R.string.bilibili_video_id_error))
-                    return
-                }
-                targetVideoId = resolved.bvid
-                bilibiliCid = resolved.cid
-                AppLogger.log("[BILI RESOLVER] Resolved media to BVID=$targetVideoId; fetching segments before optional CID lookup")
-            } else {
-                val useStrict = SettingsManager.isStrictSearchEnabled
-                val scrapeMethod = if (useStrict) "strict intitle search" else "standard search"
-                val rawQuery = if (useStrict) "intitle:\"$targetInput\"" else targetInput
-
-                val query = URLEncoder.encode(rawQuery, "UTF-8")
-                val searchReq = Request.Builder().url("https://www.youtube.com/results?search_query=$query").header("User-Agent", "Mozilla/5.0").build()
-                val html = client.newCall(searchReq).execute().body?.string() ?: ""
-                val match = Regex("""/watch\?v=([a-zA-Z0-9_-]{11})""").find(html)
-
-                if (match == null) {
-                    AppLogger.log("[SCRAPER] FATAL: Failed to locate Video ID using method: $scrapeMethod.")
-                    if (SettingsManager.isLoggingEnabled) showToast(getString(R.string.video_id_error))
-                    return
-                }
-                
-                targetVideoId = match.groupValues[1]
-                AppLogger.log("[SCRAPER] Extracted ID: '$targetVideoId' | Method: [$scrapeMethod]")
+            val resolved = bilibiliResolver.resolve(metadata, targetInput, durationMs)
+            if (resolved == null) {
+                AppLogger.log("[BILI RESOLVER] FATAL: Could not resolve a BVID for '$targetInput'.")
+                if (SettingsManager.isLoggingEnabled) showToast(getString(R.string.bilibili_video_id_error))
+                return
             }
-
-            val apiUrl = if (isBilibiliMode) {
-                val cidParam = bilibiliCid?.let { "&cid=${URLEncoder.encode(it, "UTF-8")}" }.orEmpty()
-                "https://www.bsbsb.top/api/skipSegments?videoID=$targetVideoId$cidParam"
-            } else {
-                val serviceParam = if (isSpotMode) "&service=spotify" else ""
-                val categoriesArr = """["sponsor","intro","outro","interaction","selfpromo","music_offtopic","preview","filler","hook"]"""
-                val encCategories = URLEncoder.encode(categoriesArr, "UTF-8")
-                "https://sponsor.ajay.app/api/skipSegments?videoID=$targetVideoId$serviceParam&categories=$encCategories"
-            }
+            val targetVideoId = resolved.bvid
+            var bilibiliCid = resolved.cid
+            AppLogger.log("[BILI RESOLVER] Resolved media to BVID=$targetVideoId; fetching segments before optional CID lookup")
+            val cidParam = bilibiliCid?.let { "&cid=${URLEncoder.encode(it, "UTF-8")}" }.orEmpty()
+            val apiUrl = "https://www.bsbsb.top/api/skipSegments?videoID=$targetVideoId$cidParam"
 
             AppLogger.log("[API] Executing GET: $apiUrl")
             val requestBuilder = Request.Builder().url(apiUrl)
-            if (isBilibiliMode) {
-                requestBuilder
-                    .header("Origin", "android-app://$packageName")
-                    .header("x-ext-version", BuildConfig.VERSION_NAME)
-            }
+                .header("Origin", "android-app://$packageName")
+                .header("x-ext-version", BuildConfig.VERSION_NAME)
             val sponsorRes = client.newCall(requestBuilder.build()).execute()
             AppLogger.log("[API] Response Code: ${sponsorRes.code}")
 
@@ -266,7 +198,7 @@ class MediaNotificationService : NotificationListenerService() {
             skipSegments.clear()
             val armedSegments = mutableListOf<Segment>()
 
-            if (isBilibiliMode && bilibiliCid == null) {
+            if (bilibiliCid == null) {
                 val matchingCids = buildSet {
                     for (i in 0 until sponsorJson.length()) {
                         val candidate = sponsorJson.optJSONObject(i) ?: continue
@@ -289,17 +221,15 @@ class MediaNotificationService : NotificationListenerService() {
                 val segment = obj.getJSONArray("segment")
                 val category = obj.getString("category")
                 val uuid = obj.optString("UUID", obj.optString("uuid", ""))
-                if (isBilibiliMode) {
-                    val actionType = obj.optString("actionType", "skip")
-                    val segmentCid = obj.optString("cid")
-                    val submittedDuration = obj.optLong("videoDuration", 0L)
-                    val durationMatches = durationMs <= 0L || submittedDuration <= 0L ||
-                        abs(durationMs / 1000L - submittedDuration) <= 5L
-                    val cidMatches = bilibiliCid == null || segmentCid.isBlank() || segmentCid == bilibiliCid
-                    if (actionType != "skip" || !cidMatches || !durationMatches) {
-                        AppLogger.log("[BILI PARSE] Ignored [$category]: action=$actionType cid=$segmentCid duration=${submittedDuration}s")
-                        continue
-                    }
+                val actionType = obj.optString("actionType", "skip")
+                val segmentCid = obj.optString("cid")
+                val submittedDuration = obj.optLong("videoDuration", 0L)
+                val durationMatches = durationMs <= 0L || submittedDuration <= 0L ||
+                    abs(durationMs / 1000L - submittedDuration) <= 5L
+                val cidMatches = bilibiliCid == null || segmentCid.isBlank() || segmentCid == bilibiliCid
+                if (actionType != "skip" || !cidMatches || !durationMatches) {
+                    AppLogger.log("[BILI PARSE] Ignored [$category]: action=$actionType cid=$segmentCid duration=${submittedDuration}s")
+                    continue
                 }
                 val action = SettingsManager.getSegmentAction(category)
                 val actionStr = if (action == 1) "Skip" else "Off"
@@ -321,8 +251,7 @@ class MediaNotificationService : NotificationListenerService() {
                         if (skipOffsetMs != 0L) {
                             AppLogger.log("[PARSE] Applied skip offset of ${skipOffsetMs}ms to [$category]: original (${rawStartMs}-${rawEndMs}ms) -> (${startMs}-${endMs}ms)")
                         }
-                        val source = if (isBilibiliMode) SegmentSource.BILIBILI_SPONSOR_BLOCK else SegmentSource.SPONSOR_BLOCK
-                        armedSegments.add(Segment(startMs, endMs, category, uuids, source))
+                        armedSegments.add(Segment(startMs, endMs, category, uuids))
                     }
                 } else { AppLogger.log("[PARSE] Evaluated [$category] = $actionStr") }
             }
@@ -340,8 +269,7 @@ class MediaNotificationService : NotificationListenerService() {
                             current.startMs,
                             max(current.endMs, next.endMs),
                             "multiple",
-                            current.uuids + next.uuids,
-                            current.source
+                            current.uuids + next.uuids
                         )
                     } else { skipSegments.add(current); current = next }
                 }
@@ -359,23 +287,16 @@ class MediaNotificationService : NotificationListenerService() {
         }
     }
 
-    private fun sendSkipCount(uuid: String, source: SegmentSource) {
+    private fun sendSkipCount(uuid: String) {
         try {
             AppLogger.log("[API] Sending skip count for segment UUID: $uuid")
-            val req = if (source == SegmentSource.BILIBILI_SPONSOR_BLOCK) {
-                val json = JSONObject().put("UUID", uuid).toString()
-                Request.Builder()
-                    .url("https://www.bsbsb.top/api/viewedVideoSponsorTime")
-                    .header("Origin", "android-app://$packageName")
-                    .header("x-ext-version", BuildConfig.VERSION_NAME)
-                    .post(json.toRequestBody("application/json; charset=utf-8".toMediaType()))
-                    .build()
-            } else {
-                Request.Builder()
-                    .url("https://sponsor.ajay.app/api/viewedVideoSponsorTime?UUID=$uuid")
-                    .post(okhttp3.FormBody.Builder().build())
-                    .build()
-            }
+            val json = JSONObject().put("UUID", uuid).toString()
+            val req = Request.Builder()
+                .url("https://www.bsbsb.top/api/viewedVideoSponsorTime")
+                .header("Origin", "android-app://$packageName")
+                .header("x-ext-version", BuildConfig.VERSION_NAME)
+                .post(json.toRequestBody("application/json; charset=utf-8".toMediaType()))
+                .build()
             val resp = client.newCall(req).execute()
             AppLogger.log("[API] Skip count response code for $uuid: ${resp.code}")
             resp.close()
@@ -389,7 +310,7 @@ class MediaNotificationService : NotificationListenerService() {
         trackingJob = scope.launch(Dispatchers.Main) {
             while (isActive) {
                 try {
-                    val state = ytController?.playbackState
+                    val state = mediaController?.playbackState
                     if (state?.state == PlaybackState.STATE_PLAYING) {
                         val elapsed = if (state.lastPositionUpdateTime > 0L) {
                             (SystemClock.elapsedRealtime() - state.lastPositionUpdateTime).coerceAtLeast(0L)
@@ -401,7 +322,7 @@ class MediaNotificationService : NotificationListenerService() {
                             AppLogger.log("[TRACKER] ⚠️ CROSSED BOUNDARY: ${hit.category.uppercase()} at $pos ms")
                             skipSegments.remove(hit)
                             try {
-                                ytController?.transportControls?.seekTo(hit.endMs)
+                                mediaController?.transportControls?.seekTo(hit.endMs)
                             } catch (e: Exception) {
                                 AppLogger.log("[TRACKER] seekTo failed: ${e.message}")
                             }
@@ -414,7 +335,7 @@ class MediaNotificationService : NotificationListenerService() {
                                 val uuidsToSend = hit.uuids.toList()
                                 scope.launch(Dispatchers.IO) {
                                     for (uuid in uuidsToSend) {
-                                        sendSkipCount(uuid, hit.source)
+                                        sendSkipCount(uuid)
                                     }
                                 }
                             }

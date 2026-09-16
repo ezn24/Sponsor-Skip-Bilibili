@@ -18,13 +18,9 @@ import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
-import android.text.style.RelativeSizeSpan
-import android.text.style.TypefaceSpan
 import android.view.HapticFeedbackConstants
 import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -34,9 +30,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.materialswitch.MaterialSwitch
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
   private val categories = listOf(
@@ -151,20 +145,6 @@ class MainActivity : AppCompatActivity() {
       }
     }
 
-    // Beta Tag and Icon styling for Custom Apps Button
-    val btnCustomApps = findViewById<TextView>(R.id.btnSetBackup)
-    val customAppsText = getString(R.string.custom_apps_beta)
-    val span = SpannableString(customAppsText)
-    val badgeStart = (getString(R.string.custom_apps).length + 2).coerceAtMost(customAppsText.length)
-    val badgeEnd = customAppsText.trimEnd().length.coerceAtLeast(badgeStart)
-    span.setSpan(BackgroundColorSpan(Color.parseColor("#44888888")), badgeStart, badgeEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    span.setSpan(TypefaceSpan("monospace"), badgeStart, badgeEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    span.setSpan(RelativeSizeSpan(0.75f), badgeStart, badgeEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    btnCustomApps.text = span
-    
-    
-
-    
     try {
         val pInfo = packageManager.getPackageInfo(packageName, 0)
         findViewById<TextView>(R.id.tvVersion).text = getString(R.string.version_format, pInfo.versionName)
@@ -172,13 +152,11 @@ class MainActivity : AppCompatActivity() {
     
     findViewById<View>(R.id.cardUpdate).setOnClickListener { it.haptic(); lifecycleScope.launch { UpdateManager.checkUpdate(this@MainActivity, true) } }
     findViewById<View>(R.id.btnSetPerms).setOnClickListener { it.haptic(); startActivity(Intent(this, PermissionsActivity::class.java)) }
-    btnCustomApps.setOnClickListener { it.haptic(); AppSelectionDialog.show(this@MainActivity) }
     findViewById<View>(R.id.btnSetMore).setOnClickListener { it.haptic(); startActivity(Intent(this, MoreActivity::class.java)) }
-    findViewById<View>(R.id.btnSetRepo).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jaival-11/Sponsor-Skip"))) }
-    findViewById<View>(R.id.btnSetBugs).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jaival-11/Sponsor-Skip#bug-reports--feature-suggestions"))) }
-    findViewById<View>(R.id.btnSetFeature).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jaival-11/Sponsor-Skip#bug-reports--feature-suggestions"))) }
-    findViewById<View>(R.id.btnSetContact).setOnClickListener { it.haptic(); val version = try { packageManager.getPackageInfo(packageName, 0).versionName } catch (e: Exception) { getString(R.string.unknown) }; val intent = Intent(Intent.ACTION_SENDTO).apply { data = Uri.parse("mailto:jaival7909@gmail.com?subject=" + Uri.encode("Sponsor Skip - v$version")) }; startActivity(Intent.createChooser(intent, getString(R.string.send_email))) }
-    findViewById<View>(R.id.btnSetPrivacy).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jaival-11/Sponsor-Skip/blob/main/PRIVACY.md"))) }
+    findViewById<View>(R.id.btnSetRepo).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ezn24/Sponsor-Skip-Bilibili"))) }
+    findViewById<View>(R.id.btnSetBugs).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ezn24/Sponsor-Skip-Bilibili/issues/new/choose"))) }
+    findViewById<View>(R.id.btnSetFeature).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ezn24/Sponsor-Skip-Bilibili/issues/new/choose"))) }
+    findViewById<View>(R.id.btnSetPrivacy).setOnClickListener { it.haptic(); startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ezn24/Sponsor-Skip-Bilibili/blob/main/PRIVACY.md"))) }
     findViewById<View>(R.id.btnSetLicense).setOnClickListener { it.haptic(); AlertDialog.Builder(this).setTitle(R.string.license_title).setMessage(R.string.license_message).setPositiveButton(R.string.view_full_gpl) { _, _ -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.gnu.org/licenses/gpl-3.0.html"))) }.setNegativeButton(R.string.close, null).show() }
     findViewById<View>(R.id.btnSetCredits).setOnClickListener { view ->
       view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
@@ -280,7 +258,7 @@ class MainActivity : AppCompatActivity() {
     privacyDialog?.setOnShowListener {
       privacyDialog?.getButton(AlertDialog.BUTTON_NEUTRAL)?.setOnClickListener { view ->
         view.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jaival-11/Sponsor-Skip/blob/main/PRIVACY.md")))
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ezn24/Sponsor-Skip-Bilibili/blob/main/PRIVACY.md")))
       }
     }
     privacyDialog?.show()
@@ -449,113 +427,4 @@ class MainActivity : AppCompatActivity() {
     super.onDestroy()
   }
   
-  private fun showCustomAppsDialog() {
-      val progressDialog = AlertDialog.Builder(this)
-          .setView(ProgressBar(this).apply { setPadding(50, 50, 50, 50) })
-          .setMessage(R.string.loading_installed_apps)
-          .setCancelable(false)
-          .show()
-
-      lifecycleScope.launch(Dispatchers.IO) {
-          val pm = packageManager
-          val installedApps = pm.getInstalledApplications(android.content.pm.PackageManager.GET_META_DATA)
-          val selectedPackages = SettingsManager.targetPackages.toMutableSet()
-          
-          val masterList = mutableListOf<Triple<String, String, Boolean>>()
-          for (appInfo in installedApps) {
-              val launchIntent = pm.getLaunchIntentForPackage(appInfo.packageName)
-              if (launchIntent != null || selectedPackages.contains(appInfo.packageName)) {
-                  val appName = pm.getApplicationLabel(appInfo).toString()
-                  masterList.add(Triple(appName, appInfo.packageName, selectedPackages.contains(appInfo.packageName)))
-              }
-          }
-          
-          withContext(Dispatchers.Main) {
-              progressDialog.dismiss()
-              
-              val container = LinearLayout(this@MainActivity).apply {
-                  orientation = LinearLayout.VERTICAL
-                  setPadding(48, 32, 48, 0)
-              }
-              
-              val searchInput = EditText(this@MainActivity).apply {
-                  hint = "Search apps..."
-                  setSingleLine()
-                  minHeight = (48 * resources.displayMetrics.density).toInt()
-                  setHintTextColor(android.graphics.Color.parseColor("#B0B0B0"))
-              }
-              
-              val listView = ListView(this@MainActivity).apply {
-                  divider = null
-                  layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f)
-              }
-              
-              container.addView(searchInput)
-              container.addView(listView)
-              
-              var currentList = masterList.sortedWith(compareBy({ !it.third }, { it.first.lowercase() })).toMutableList()
-              
-              val adapter = object : BaseAdapter() {
-                  override fun getCount() = currentList.size
-                  override fun getItem(p0: Int) = currentList[p0]
-                  override fun getItemId(p0: Int) = p0.toLong()
-                  override fun getView(pos: Int, conv: View?, parent: ViewGroup?): View {
-                      val cb = (conv as? CheckBox) ?: CheckBox(this@MainActivity).apply {
-                          setPadding(0, 32, 0, 32)
-                          textSize = 16f
-                      }
-                      val item = currentList[pos]
-                      
-                      cb.setOnCheckedChangeListener(null)
-                      cb.text = item.first
-                      cb.isChecked = item.third
-                      
-                      cb.setOnCheckedChangeListener { _, isChecked ->
-                          val masterIdx = masterList.indexOfFirst { it.second == item.second }
-                          if (masterIdx != -1) {
-                              masterList[masterIdx] = masterList[masterIdx].copy(third = isChecked)
-                          }
-                          
-                          if (isChecked) selectedPackages.add(item.second)
-                          else selectedPackages.remove(item.second)
-                          
-                          val query = searchInput.text.toString().lowercase()
-                          currentList = masterList.filter { it.first.lowercase().contains(query) }
-                              .sortedWith(compareBy({ !it.third }, { it.first.lowercase() }))
-                              .toMutableList()
-                              
-                          notifyDataSetChanged()
-                          listView.setSelection(0)
-                      }
-                      return cb
-                  }
-              }
-              listView.adapter = adapter
-              
-              searchInput.addTextChangedListener(object : android.text.TextWatcher {
-                  override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                  override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                      val query = s.toString().lowercase()
-                      currentList = masterList.filter { it.first.lowercase().contains(query) }
-                          .sortedWith(compareBy({ !it.third }, { it.first.lowercase() }))
-                          .toMutableList()
-                      adapter.notifyDataSetChanged()
-                  }
-                  override fun afterTextChanged(s: android.text.Editable?) {}
-              })
-              
-              AlertDialog.Builder(this@MainActivity)
-                  .setTitle(R.string.select_custom_apps)
-                  .setView(container)
-                  .setPositiveButton(R.string.save) { _, _ ->
-                      SettingsManager.targetPackages = selectedPackages
-                      AppLogger.log("[SETTINGS] Saved target packages. Total selected: ${selectedPackages.size}")
-                      sendBroadcast(Intent(SettingsManager.ACTION_TOGGLE_SERVICE).setPackage(packageName))
-                      Toast.makeText(this@MainActivity, R.string.target_apps_updated, Toast.LENGTH_SHORT).show()
-                  }
-                  .setNegativeButton(R.string.cancel, null)
-                  .show()
-          }
-      }
-  }
 }

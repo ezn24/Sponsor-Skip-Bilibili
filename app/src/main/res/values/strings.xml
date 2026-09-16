@@ -11,12 +11,9 @@
     <string name="duration_format">%1$dm %2$ds</string>
     <string name="version_format">Version %1$s (Tap to check)</string>
     <string name="permissions">Permissions</string>
-    <string name="custom_apps">Custom Apps</string>
-    <string name="custom_apps_beta">Custom Apps  beta </string>
     <string name="report_bugs">Report Bugs</string>
     <string name="request_feature">Request Feature</string>
     <string name="app_page">App Page</string>
-    <string name="contact_developer">Contact Developer</string>
     <string name="more">More</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="app_license">App License (GPLv3)</string>
@@ -32,14 +29,12 @@
     <string name="decline">Decline</string>
     <string name="save">Save</string>
     <string name="disable">Disable</string>
-    <string name="continue_label">Continue</string>
     <string name="permission_required">Permission required to start service.</string>
-    <string name="send_email">Send Email</string>
     <string name="unknown">Unknown</string>
     <string name="failed_open_link">Failed to open link</string>
     <string name="no_license_url">No license URL provided by library</string>
     <string name="license_title">License &amp; Warranty</string>
-    <string name="license_message">Sponsor Skip: Auto-skips SponsorBlock segments in YouTube videos\nCopyright © 2026 ezn24\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</string>
+    <string name="license_message">Sponsor Skip for Bilibili: Auto-skips community-submitted segments in Bilibili videos\nCopyright © 2026 ezn24\nBased on Sponsor Skip by Jaival\n\nThis program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</string>
     <string name="view_full_gpl">View Full GPLv3</string>
     <string name="welcome_title">Welcome to Sponsor Skip!</string>
     <string name="privacy_message">To keep things transparent and respect your privacy, here is how the app works:\n\n1. Finding the video: The app requires Notification Access to read the title, duration and playback position from Bilibili\'s active media player. It does not read personal messages.\n\n2. Getting the video ID: When the media session does not expose the BVID, the app searches Bilibili\'s public API using the title and verifies the result using the duration. No account data, login or cookies are sent.\n\n3. Skipping segments: The BVID and, when needed, CID are sent to the community-run BilibiliSponsorBlock API (bsbsb.top) to obtain skip timestamps.\n\n4. Local processing: Skipping happens entirely on your phone. The app never collects, stores, shares or sells your viewing history.\n\nBy tapping Accept, you consent to our Privacy Policy.</string>
@@ -56,7 +51,7 @@
     <string name="category_intro">Intermission / Intro Animation</string>
     <string name="category_intro_description">An interval without actual content, such as a pause, static frame or repeating animation.</string>
     <string name="category_outro">Endcards / Credits</string>
-    <string name="category_outro_description">Credits or the point where YouTube endcards appear.</string>
+    <string name="category_outro_description">Credits or the ending section of the video.</string>
     <string name="category_preview">Preview / Recap</string>
     <string name="category_preview_description">Clips showing what is coming up or recapping information repeated elsewhere.</string>
     <string name="category_exclusive_access">Exclusive Access / Early Access</string>
@@ -70,16 +65,6 @@
     <string name="category_music_offtopic">Music: Non-Music Section</string>
     <string name="category_music_offtopic_description">Sections without music in music videos that are not covered by another category.</string>
 
-    <string name="select_apps">Select Apps</string>
-    <string name="select_custom_apps">Select Custom Apps</string>
-    <string name="loading_installed_apps">Loading installed apps…</string>
-    <string name="app_list_saved">App list saved</string>
-    <string name="target_apps_updated">Target apps updated</string>
-    <string name="app_conflict">App Conflict</string>
-    <string name="spotify_main_conflict">Spotify is currently active in Spot SponsorBlock.\n\nIf you add it to the main app list, Spot SponsorBlock will be turned off.</string>
-    <string name="spotify_spot_conflict">Spotify is currently selected in Main YouTube SponsorBlock.\n\nIf you continue, it will be removed from there and Spot SponsorBlock will be enabled.</string>
-    <string name="disabled_spot">Disabled Spot SponsorBlock</string>
-    <string name="enabled_spot">Enabled Spot SponsorBlock</string>
 
     <string name="notification_listener_status">Notification Listener  %1$s</string>
     <string name="post_notifications_status">Post Notifications  %1$s</string>
@@ -101,10 +86,6 @@
     <string name="check_updates_description">Automatically check for app updates. Keeping this enabled is recommended.</string>
     <string name="prerelease_updates">Pre-release updates</string>
     <string name="prerelease_updates_description">Receive pre-release updates, which may contain bugs or be unstable.</string>
-    <string name="strict_search">Strict search</string>
-    <string name="strict_search_description">Use strict search for more accurate results. It may fail for videos with certain titles.</string>
-    <string name="spot_sponsorblock">Spot SponsorBlock</string>
-    <string name="spot_sponsorblock_description">SponsorBlock for Spotify</string>
     <string name="foreground_service">Foreground service</string>
     <string name="foreground_service_description">Run a foreground service if detection is unreliable. This may consume more battery.</string>
     <string name="skip_count_tracking">Enable Skip Count tracking</string>
@@ -151,7 +132,6 @@
     <string name="log_read_error">Error reading logs: %1$s</string>
 
     <string name="no_segments">No segments are available for this audio/video</string>
-    <string name="video_id_error">Error: Could not extract Video ID</string>
     <string name="segments_loaded">Loaded %1$d segments to skip</string>
     <string name="segments_fetch_error">Error fetching segments</string>
     <string name="skipped_multiple">Skipped multiple segments</string>

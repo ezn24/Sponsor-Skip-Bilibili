@@ -29,13 +29,9 @@
 
         <TextView android:id="@+id/btnSetPerms" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/permissions" android:drawableStart="@drawable/ic_shield" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
 
-        <TextView android:id="@+id/btnSetBackup" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/custom_apps" android:drawableStart="@drawable/ic_app_registration" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
-
         <TextView android:id="@+id/btnSetBugs" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/report_bugs" android:drawableStart="@drawable/ic_bug" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
         <TextView android:id="@+id/btnSetFeature" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/request_feature" android:drawableStart="@drawable/ic_flask" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
         <TextView android:id="@+id/btnSetRepo" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/app_page" android:drawableStart="@drawable/ic_code" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
-        <TextView android:id="@+id/btnSetContact" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/contact_developer" android:drawableStart="@drawable/ic_email" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
-        
         <TextView android:id="@+id/btnSetMore" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/more" android:drawableStart="@drawable/ic_more" android:drawablePadding="16dp" android:padding="16dp" android:background="?attr/selectableItemBackground" android:textSize="16sp"/>
 
         <View android:layout_width="match_parent" android:layout_height="1dp" android:background="?attr/colorSurfaceVariant" android:layout_marginTop="8dp" android:layout_marginBottom="8dp"/>

@@ -1,5 +1,5 @@
 /*
- * Sponsor Skip - Auto-skips SponsorBlock segments in YouTube videos
+ * Sponsor Skip for Bilibili - Auto-skips community-submitted segments in Bilibili videos
  * Copyright (C) 2026 Jaival
  *
  * This program is free software: you can redistribute it and/or modify

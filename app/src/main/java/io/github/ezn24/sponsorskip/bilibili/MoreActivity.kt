@@ -86,9 +86,7 @@ class MoreActivity : AppCompatActivity() {
     }
 
     private fun updateUiState() {
-        findViewById<MaterialSwitch>(R.id.switchStrictSearch)?.isChecked = SettingsManager.isStrictSearchEnabled
         findViewById<MaterialSwitch>(R.id.switchPreRelease)?.isChecked = SettingsManager.getPreReleaseSetting(this)
-        findViewById<MaterialSwitch>(R.id.switchSpot)?.isChecked = SettingsManager.isSpotEnabled
         findViewById<MaterialSwitch>(R.id.switchForeground)?.isChecked = SettingsManager.isForegroundEnabled
         findViewById<MaterialSwitch>(R.id.switchCheckForUpdates)?.isChecked = SettingsManager.isAutoUpdateCheckEnabled
         findViewById<MaterialSwitch>(R.id.switchSkipCountTracking)?.isChecked = SettingsManager.isSkipCountTrackingEnabled
@@ -118,16 +116,9 @@ class MoreActivity : AppCompatActivity() {
         setContentView(R.layout.activity_more)
 
         setupCollapsibleRow(R.id.layoutUpdatesHeader, R.id.contentUpdates, R.id.arrowUpdates, "Updates")
-        setupCollapsibleRow(R.id.layoutStrictSearch, R.id.descStrictSearch, R.id.arrowStrictSearch, "Strict search")
-        setupCollapsibleRow(R.id.layoutSpot, R.id.descSpot, R.id.arrowSpot, "Spot SponsorBlock")
         setupCollapsibleRow(R.id.layoutForeground, R.id.descForeground, R.id.arrowForeground, "Foreground service")
         setupCollapsibleRow(R.id.layoutSkipCountTracking, R.id.descSkipCountTracking, R.id.arrowSkipCountTracking, "Skip count tracking")
 
-        val switchStrict = findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchStrictSearch)
-        switchStrict?.isChecked = SettingsManager.isStrictSearchEnabled
-        switchStrict?.setOnCheckedChangeListener { _, isChecked ->
-            SettingsManager.isStrictSearchEnabled = isChecked
-        }
         findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar).setNavigationOnClickListener { finish() }
 
         fun View.haptic() = this.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
@@ -135,34 +126,6 @@ class MoreActivity : AppCompatActivity() {
         val switchPreRelease = findViewById<MaterialSwitch>(R.id.switchPreRelease)
         switchPreRelease.isChecked = SettingsManager.getPreReleaseSetting(this)
         switchPreRelease.setOnCheckedChangeListener { _, isChecked -> SettingsManager.setPreReleaseSetting(isChecked) }
-
-        val switchSpot = findViewById<MaterialSwitch>(R.id.switchSpot)
-        switchSpot.isChecked = SettingsManager.isSpotEnabled
-
-        switchSpot.setOnClickListener { view ->
-            view.haptic()
-            val isChecked = switchSpot.isChecked
-
-            if (isChecked && SettingsManager.targetPackages.contains(SettingsManager.SPOTIFY_PACKAGE)) {
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.app_conflict)
-                    .setMessage(R.string.spotify_spot_conflict)
-                    .setPositiveButton(R.string.continue_label) { _, _ ->
-                        val updated = SettingsManager.targetPackages.toMutableSet()
-                        updated.remove(SettingsManager.SPOTIFY_PACKAGE)
-                        SettingsManager.targetPackages = updated
-
-                        SettingsManager.isSpotEnabled = true
-                        sendBroadcast(Intent(SettingsManager.ACTION_TOGGLE_SERVICE).setPackage(packageName))
-                        Toast.makeText(this, R.string.enabled_spot, Toast.LENGTH_SHORT).show()
-                    }
-                    .setNegativeButton(R.string.cancel) { _, _ -> switchSpot.isChecked = false }
-                    .show()
-            } else {
-                SettingsManager.isSpotEnabled = isChecked
-                sendBroadcast(Intent(SettingsManager.ACTION_TOGGLE_SERVICE).setPackage(packageName))
-            }
-        }
 
         val switchFg = findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchForeground)
         switchFg?.isChecked = SettingsManager.isForegroundEnabled

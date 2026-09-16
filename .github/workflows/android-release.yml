@@ -55,7 +55,7 @@ jobs:
 
       - name: Rename Signed APK
         run: |
-          mv ${{ steps.sign_app.outputs.signedReleaseFile }} SponsorSkip-v${{ steps.get_version.outputs.version_name }}.apk
+          mv ${{ steps.sign_app.outputs.signedReleaseFile }} SponsorSkip-Bilibili-v${{ steps.get_version.outputs.version_name }}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -71,6 +71,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            SponsorSkip-v${{ steps.get_version.outputs.version_name }}.apk
+            SponsorSkip-Bilibili-v${{ steps.get_version.outputs.version_name }}.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

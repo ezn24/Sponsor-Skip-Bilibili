@@ -30,10 +30,6 @@ object SettingsManager {
             syncForegroundService()
         }
 
-    var isStrictSearchEnabled: Boolean
-        get() = prefs.getBoolean("strict_search_enabled", false)
-        set(value) = prefs.edit().putBoolean("strict_search_enabled", value).apply()
-
     var isSkipCountTrackingEnabled: Boolean
         get() = prefs.getBoolean("skip_count_tracking_enabled", false)
         set(value) { prefs.edit().putBoolean("skip_count_tracking_enabled", value).commit() }
@@ -52,14 +48,9 @@ object SettingsManager {
         }
 
 
-    const val SPOTIFY_PACKAGE = "com.spotify.music"
     val BILIBILI_PACKAGES = setOf("tv.danmaku.bili", "com.bilibili.app.in")
     val ACTION_TOGGLE_SERVICE = "${BuildConfig.APPLICATION_ID}.TOGGLE_SERVICE"
     val ACTION_STATS_UPDATED = "${BuildConfig.APPLICATION_ID}.STATS_UPDATED"
-
-    var targetPackages: Set<String>
-        get() = prefs.getStringSet("targetPackages", BILIBILI_PACKAGES) ?: BILIBILI_PACKAGES
-        set(value) = prefs.edit().putStringSet("targetPackages", value).apply()
 
     private const val PREFS_NAME = "skipper_prefs"
     private lateinit var prefs: SharedPreferences
@@ -170,10 +161,6 @@ object SettingsManager {
     var pendingUpdateUrl: String
         get() = prefs.getString("pending_update_url", "") ?: ""
         set(value) { prefs.edit().putString("pending_update_url", value).apply() }
-
-    var isSpotEnabled: Boolean
-        get() = prefs.getBoolean("spot_master_switch", false) // Default OFF per instructions
-        set(value) { prefs.edit().putBoolean("spot_master_switch", value).commit() }
 
     fun exportSettingsJson(): String {
         val json = org.json.JSONObject()

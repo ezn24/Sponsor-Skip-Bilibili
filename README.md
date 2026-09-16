@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip/refs/heads/bilibili/assets/graphics/icon.png" alt="Sponsor Skip for Bilibili 應用程式圖示" width="200" />
+<img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip-Bilibili/refs/heads/main/assets/graphics/icon.png" alt="Sponsor Skip for Bilibili 應用程式圖示" width="200" />
 
 # Sponsor Skip for Bilibili
 
@@ -8,8 +8,8 @@
 
 <br/>
 
-[![Latest release](https://img.shields.io/github/v/release/ezn24/Sponsor-Skip?style=for-the-badge\&labelColor=0d1117)](https://github.com/ezn24/Sponsor-Skip/releases/latest)
-[![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge\&labelColor=0d1117\&color=EA7233)](https://github.com/ezn24/Sponsor-Skip/blob/bilibili/LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/ezn24/Sponsor-Skip-Bilibili?style=for-the-badge\&labelColor=0d1117)](https://github.com/ezn24/Sponsor-Skip-Bilibili/releases/latest)
+[![License](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge\&labelColor=0d1117\&color=EA7233)](https://github.com/ezn24/Sponsor-Skip-Bilibili/blob/main/LICENSE)
 
 <br/>
 
@@ -47,7 +47,7 @@
 
 <h2><a id="screenshots"></a>螢幕截圖</h2>
 
-<img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip/refs/heads/bilibili/assets/screenshots/Screenshot1.jpg" alt="首頁" width="30%" /> <img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip/refs/heads/bilibili/assets/screenshots/Screenshot2.jpg" alt="設定頁面" width="30%" /> <img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip/refs/heads/bilibili/assets/screenshots/Screenshot3.jpg" alt="其他設定" width="30%" />
+<img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip-Bilibili/refs/heads/main/assets/screenshots/Screenshot1.jpg" alt="首頁" width="30%" /> <img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip-Bilibili/refs/heads/main/assets/screenshots/Screenshot2.jpg" alt="設定頁面" width="30%" /> <img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip-Bilibili/refs/heads/main/assets/screenshots/Screenshot3.jpg" alt="其他設定" width="30%" />
 
 ---
 
@@ -129,7 +129,7 @@
   </tr>
   <tr>
     <td align="center">
-      <a href="https://github.com/ezn24/Sponsor-Skip/releases/latest">
+      <a href="https://github.com/ezn24/Sponsor-Skip-Bilibili/releases/latest">
         <img src="https://raw.githubusercontent.com/NeoApplications/Neo-Backup/034b226cea5c1b30eb4f6a6f313e4dadcbb0ece4/badge_github.png" alt="從 GitHub Releases 下載" height="70">
       </a>
     </td>
@@ -155,8 +155,8 @@
 例如：
 
 ```bash
-git clone -b bilibili https://github.com/ezn24/Sponsor-Skip.git
-cd Sponsor-Skip
+git clone https://github.com/ezn24/Sponsor-Skip-Bilibili.git
+cd Sponsor-Skip-Bilibili
 ./gradlew assembleDebug
 ```
 
@@ -202,7 +202,7 @@ git push origin feature/AmazingFeature
 
 請前往：
 
-[GitHub Issues](https://github.com/ezn24/Sponsor-Skip/issues)
+[GitHub Issues](https://github.com/ezn24/Sponsor-Skip-Bilibili/issues)
 
 建立 Issue，並盡可能提供：
 
@@ -219,7 +219,7 @@ git push origin feature/AmazingFeature
 
 同樣可以透過：
 
-[GitHub Issues](https://github.com/ezn24/Sponsor-Skip/issues)
+[GitHub Issues](https://github.com/ezn24/Sponsor-Skip-Bilibili/issues)
 
 提出你的想法。
 
