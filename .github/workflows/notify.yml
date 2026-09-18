@@ -127,48 +127,29 @@ jobs:
           TEXT: ${{ steps.info.outputs.full_message }}
           APK_PATH: ${{ steps.info.outputs.apk_path }}
         run: |
-          send_text_message() {
-            jq -n \
-              --arg chat_id "$CHAT_ID" \
-              --arg thread_id "$TOPIC_ID" \
-              --arg text "$TEXT" \
-              '{
-                chat_id: $chat_id, 
-                text: $text, 
-                parse_mode: "HTML",
-                disable_web_page_preview: false
-              } + (if $thread_id != "" then {message_thread_id: ($thread_id | tonumber? // $thread_id)} else {} end)' > payload.json
+          jq -n \
+            --arg chat_id "$CHAT_ID" \
+            --arg thread_id "$TOPIC_ID" \
+            --arg text "$TEXT" \
+            '{
+              chat_id: $chat_id, 
+              text: $text, 
+              parse_mode: "HTML",
+              disable_web_page_preview: false
+            } + (if $thread_id != "" then {message_thread_id: ($thread_id | tonumber? // $thread_id)} else {} end)' > payload.json
 
-            curl -X POST -H "Content-Type: application/json" -d @payload.json "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
-          }
-
-          MSG_LEN=${#TEXT}
+          curl -X POST -H "Content-Type: application/json" -d @payload.json "https://api.telegram.org/bot$BOT_TOKEN/sendMessage"
 
           if [[ -n "$APK_PATH" && -f "$APK_PATH" ]]; then
-            if [[ $MSG_LEN -le 1024 ]]; then
-              CURL_ARGS=(
-                -F "chat_id=$CHAT_ID"
-                -F "document=@$APK_PATH"
-                -F "caption=$TEXT"
-                -F "parse_mode=HTML"
-              )
-              if [[ -n "$TOPIC_ID" ]]; then
-                CURL_ARGS+=(-F "message_thread_id=$TOPIC_ID")
-              fi
-              curl -X POST "${CURL_ARGS[@]}" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
-            else
-              send_text_message
-              CURL_ARGS=(
-                -F "chat_id=$CHAT_ID"
-                -F "document=@$APK_PATH"
-              )
-              if [[ -n "$TOPIC_ID" ]]; then
-                CURL_ARGS+=(-F "message_thread_id=$TOPIC_ID")
-              fi
-              curl -X POST "${CURL_ARGS[@]}" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
+            CURL_ARGS=(
+              -F "chat_id=$CHAT_ID"
+              -F "document=@$APK_PATH"
+            )
+            if [[ -n "$TOPIC_ID" ]]; then
+              CURL_ARGS+=(-F "message_thread_id=$TOPIC_ID")
             fi
-          else
-            send_text_message
+            curl -X POST "${CURL_ARGS[@]}" "https://api.telegram.org/bot$BOT_TOKEN/sendDocument"
           fi
+
 
 

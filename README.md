@@ -263,3 +263,5 @@ Copyright © 2026 Jaival
 **Made with ❤️ by [Jaival](https://github.com/jaival-11)**
 
 </div>
+
+[![GitGem](https://gitgem.org/api/badge/github/jaival-11/Sponsor-Skip.svg)](https://gitgem.org/github/jaival-11/Sponsor-Skip)
