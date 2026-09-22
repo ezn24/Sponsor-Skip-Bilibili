@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip-Bilibili/refs/heads/main/assets/graphics/icon.png" alt="Sponsor Skip for Bilibili 應用程式圖示" width="200" />
+<img src="https://raw.githubusercontent.com/ezn24/Sponsor-Skip-Bilibili/refs/heads/bilibili/assets/graphics/icon.png" alt="Sponsor Skip for Bilibili 應用程式圖示" width="200" />
 
 # Sponsor Skip for Bilibili
 
