@@ -15,6 +15,12 @@
 
 [**Download**](#下載) · [**Features**](#功能) · [**Report an Issue**](#問題回報與功能建議)
 
+<br/>
+
+[**简体中文**](./README_CN.md) · [**繁體中文**](./README.md) · [**EN**](./README_EN.md)
+
+<br/>
+
 </div>
 
 ---
